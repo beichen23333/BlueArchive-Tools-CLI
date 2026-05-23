@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using BlueArchiveTools.CLI.MemoryPack;
 using YldaDumpCsExporter;
+using UABEAvalonia;
 
 namespace BlueArchiveTools.CLI;
 
@@ -29,6 +30,10 @@ public class Program
                 HandleDumpCommand(args);
                 break;
 
+            case "uabea":
+                CommandLineHandler.CLHMain(args[1..]);
+                break;
+
             default:
                 Console.WriteLine($"[Error] Unknown command: {command}");
                 DisplayHelp();
@@ -53,6 +58,10 @@ public class Program
         Console.WriteLine("   格式: dump <server> <il2cppPath> <metadataPath> <outputPath>");
         Console.WriteLine("   - server : cn (国服), gl (国际服), jp (日服)");
         Console.WriteLine("   注意: 国服不需要 il2cpp，可以为none");
+
+        Console.WriteLine("\n3. [UABEA] Unity资源提取与修改");
+        Console.WriteLine("   格式: uabea <command> [options] [flags]");
+        Console.WriteLine("   示例: uabea export -f game.bundle -o ./out/");
 
         Console.WriteLine("\n其他");
         Console.WriteLine("  -h, --help    显示此帮助信息");
