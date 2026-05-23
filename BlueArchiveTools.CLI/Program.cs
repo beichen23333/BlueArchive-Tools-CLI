@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using BlueArchiveTools.CLI.MemoryPack;
-using BlueArchiveTools.CLI.CRCManip;
 using YldaDumpCsExporter;
 
 namespace BlueArchiveTools.CLI;
