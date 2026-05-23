@@ -2,12 +2,30 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
 
 jobs:
+  tag:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Tag
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          VERSION="v$(date +'%Y.%m.%d.%H%M%S')"
+          git tag $VERSION
+          git push origin $VERSION
+
   build:
+    needs: tag
     strategy:
       matrix:
         include:
@@ -19,9 +37,7 @@ jobs:
             platform: osx-x64
           - os: macos-latest
             platform: osx-arm64
-
     runs-on: ${{ matrix.os }}
-    
     steps:
       - uses: actions/checkout@v4
 
@@ -30,8 +46,25 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Build SpineSkeletonDataConverter
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/wang606/SpineSkeletonDataConverter.git
+          cd SpineSkeletonDataConverter
+          mkdir build && cd build
+          cmake ..
+          cmake --build . --config Release
+
       - name: Publish
         run: dotnet publish BlueArchiveTools.CLI -c Release -r ${{ matrix.platform }} --self-contained true /p:PublishTrimmed=false -o ./publish
+
+      - name: Copy Extra Binaries
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          cp SpineSkeletonDataConverter/build/SpineSkeletonDataConverter* ./publish/
+          cp SpineSkeletonDataConverter/build/SpineAtlasDowngrade* ./publish/
 
       - name: Zip Artifact
         shell: bash
