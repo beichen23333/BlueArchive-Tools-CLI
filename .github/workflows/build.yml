@@ -2,30 +2,12 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   workflow_dispatch:
 
 jobs:
-  tag:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Create Tag
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          VERSION="v$(date +'%Y.%m.%d.%H%M%S')"
-          git tag $VERSION
-          git push origin $VERSION
-
   build:
-    needs: tag
     strategy:
       matrix:
         include:
